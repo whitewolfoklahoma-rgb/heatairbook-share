@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeatAir Book — HVAC Service & Maintenance-Agreement Tracker</title>
+<style>
+:root{
+  --bg:#f4f1ec; --card:#ffffff; --ink:#22252a; --muted:#6b7280; --line:#e3ded4;
+  --brand:#b3402a; --brand2:#1f5fa8; --ok:#1e7d32; --warn:#b8860b; --bad:#b3261e;
+  --chip:#f0ebe2; --radius:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+header{background:linear-gradient(90deg,var(--brand),#7a2a1a);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:20}
+header h1{margin:0;font-size:20px;letter-spacing:.3px}
+header .sub{font-size:12.5px;opacity:.85}
+nav{display:flex;gap:6px;overflow-x:auto;background:#2b2e35;padding:8px 10px;position:sticky;top:64px;z-index:19}
+nav button{flex:0 0 auto;border:0;background:#3a3e47;color:#dfe3ea;padding:8px 13px;border-radius:999px;font-size:13.5px;cursor:pointer;min-height:38px}
+nav button.active{background:#fff;color:#22252a;font-weight:600}
+main{max-width:980px;margin:0 auto;padding:14px 12px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.card h2{margin:0 0 8px;font-size:17px}
+.card h3{margin:12px 0 6px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--chip);border-radius:10px;padding:10px 12px}
+.stat .n{font-size:20px;font-weight:700}
+.stat .l{font-size:12px;color:var(--muted)}
+label{display:block;font-size:12.5px;color:var(--muted);margin:8px 0 3px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid #c9c4b8;border-radius:8px;font-size:15px;background:#fff;color:var(--ink)}
+textarea{min-height:64px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>div{flex:1 1 150px}
+.btn{display:inline-block;border:0;border-radius:9px;padding:10px 16px;font-size:14.5px;cursor:pointer;min-height:42px;background:var(--brand2);color:#fff}
+.btn.primary{background:var(--brand)}
+.btn.ghost{background:#e8e3d8;color:var(--ink)}
+.btn.small{padding:6px 11px;min-height:34px;font-size:13px;min-height:40px;}
+.btn.danger{background:var(--bad)}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.pill.ok{background:#e0f2e3;color:var(--ok)}
+.pill.warn{background:#fdf3d7;color:#8a6508}
+.pill.bad{background:#fbe3e1;color:var(--bad)}
+.pill.grey{background:#eceae4;color:#555}
+.pill.blue{background:#e1ecfa;color:var(--brand2)}
+.mut{color:var(--muted);font-size:13px}
+.money{font-variant-numeric:tabular-nums;white-space:nowrap}
+.checkitem{display:flex;gap:9px;align-items:flex-start;padding:7px 8px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:#fff}
+.checkitem input{width:20px;height:20px;flex:0 0 auto;margin-top:1px}
+.checkitem .note{flex:1}
+.checkitem .note input{padding:5px 8px;font-size:13.5px}
+.searchbar{display:flex;gap:8px;margin-bottom:10px}
+.searchbar input{flex:1}
+details.card summary{cursor:pointer;font-weight:600;font-size:15px}
+.kv{font-size:14px}.kv b{display:inline-block;min-width:130px;color:var(--muted);font-weight:500}
+.empty{padding:18px;text-align:center;color:var(--muted)}
+.flash{background:#e0f2e3;border:1px solid #bfe3c6;color:#14541d;padding:9px 12px;border-radius:9px;margin-bottom:12px;font-size:14px}
+@media (max-width:560px){ header h1{font-size:18px} nav{top:60px} th,td{padding:6px 4px;font-size:13px} }
+@media print{
+  header,nav,.btn,.btnrow,.searchbar,.noprint{display:none!important}
+  body{background:#fff}
+  main{max-width:none;padding:0}
+  .card{border:0;border-bottom:1px solid #ccc;border-radius:0;page-break-inside:avoid}
+  .printonly{display:block!important}
+}
+.printonly{display:none}
+.sig{margin-top:26px;display:flex;gap:30px}
+.sig div{flex:1;border-top:1px solid #444;padding-top:4px;font-size:12px;color:#444}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔥❄️ HeatAir Book</h1>
+  <div class="sub" id="hdrCompany">HVAC Service &amp; Maintenance-Agreement Tracker</div>
+</header>
+<nav id="tabs">
+  <button data-tab="dash" class="active">Dashboard</button>
+  <button data-tab="cust">Customers &amp; Systems</button>
+  <button data-tab="agree">Agreements</button>
+  <button data-tab="calls">Service Calls</button>
+  <button data-tab="tune">Tune-Ups</button>
+  <button data-tab="set">Settings &amp; Backup</button>
+  <button data-tab="help">Help</button>
+</nav>
+<main id="app"></main>
+
+<script>
+"use strict";
+/* ============================ HeatAir Book ============================
+   Single-file offline HVAC book: customers & systems, maintenance
+   agreements, service calls, tune-up checklists, money summary.
+   Data lives in localStorage only. No account, no server.          */
+
+var LS_KEY = "heatairbook_v1";
+
+/* ---------- tune-up checklists ---------- */
+var FALL_ITEMS = [
+  "Replace / inspect air filter",
+  "Test thermostat operation & calibration",
+  "Inspect burners & clean as needed",
+  "Inspect heat exchanger for cracks / corrosion",
+  "Test ignition system & flame sensor",
+  "Check flue pipe & venting for blockage / leaks",
+  "Carbon monoxide test at registers",
+  "Inspect blower motor, wheel & belt",
+  "Lubricate motors / bearings (where applicable)",
+  "Check gas pressure & manifold setting",
+  "Test all safety controls & limit switches",
+  "Inspect ductwork connections & visible runs"
+];
+var SPRING_ITEMS = [
+  "Replace / inspect air filter",
+  "Clean condenser coil & clear debris",
+  "Check refrigerant charge (superheat / subcool)",
+  "Inspect evaporator coil & drain pan",
+  "Flush condensate drain line",
+  "Inspect & tighten electrical connections",
+  "Test capacitors & contactor",
+  "Check condenser fan motor & blade",
+  "Test thermostat operation & calibration",
+  "Inspect ductwork connections & visible runs",
+  "Check condensate pump (if fitted)",
+  "Record temperature split across coil"
+];
+
+/* ---------- helpers ---------- */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function num(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
+function money(n){ n = num(n); var neg = n < 0; n = Math.abs(n); return (neg?"-$":"$") + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,","); }
+function uid(p){ return (p||"id") + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8); }
+function todayISO(){ var d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function validISODate(s){
+  if(typeof s!=="string") return false;
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s); if(!m) return false;
+  var y=+m[1], mo=+m[2], d=+m[3]; if(mo<1||mo>12||d<1||d>31) return false;
+  var dt = new Date(Date.UTC(y,mo-1,d));
+  return dt.getUTCFullYear()===y && dt.getUTCMonth()===mo-1 && dt.getUTCDate()===d;
+}
+function addDays(iso, days){ var t = Date.parse(iso+"T12:00:00"); if(!isFinite(t)) return iso; var d = new Date(t + days*86400000); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function daysBetween(a, b){ var ta = Date.parse(a+"T12:00:00"), tb = Date.parse(b+"T12:00:00"); if(!isFinite(ta)||!isFinite(tb)) return null; return Math.round((tb-ta)/86400000); }
+function fmtDate(iso){ if(!validISODate(iso)) return iso||"—"; var p = iso.split("-"); return p[1]+"/"+p[2]+"/"+p[0]; }
+function clampNonNeg(n){ n = num(n); return n < 0 ? 0 : n; }
+function monthKey(iso){ return validISODate(iso) ? iso.slice(0,7) : ""; }
+
+/* ---------- pure business math (also used by QA harness) ---------- */
+function callBilled(call){ return Math.round((clampNonNeg(call.laborHours)*clampNonNeg(call.laborRate) + clampNonNeg(call.partsCost))*100)/100; }
+function callBalance(call){ return Math.round((callBilled(call) - clampNonNeg(call.collected))*100)/100; }
+function visitsPerYear(a){ var v = Math.round(num(a.visitsPerYear)); return v > 0 ? v : 2; }
+function visitsUsed(a){ return Math.max(0, Math.round(num(a.visitsUsed))); }
+function visitsLeft(a){ return Math.max(0, visitsPerYear(a) - visitsUsed(a)); }
+function renewalState(a, today){
+  if(a.status !== "active") return a.status; /* expired / cancelled pass through */
+  if(!validISODate(a.renewalDate)) return "active";
+  var d = daysBetween(today, a.renewalDate);
+  if(d === null) return "active";
+  if(d < 0) return "overdue";
+  if(d <= 30) return "due-soon";
+  return "active";
+}
+function moneySummary(state, year){
+  var s = { agreeRev:0, serviceBilled:0, serviceCollected:0, outstanding:0, months:{}, callCount:0, agreeCount:0 };
+  state.agreements.forEach(function(a){
+    if(a.status !== "cancelled" && validISODate(a.startDate) && a.startDate.slice(0,4) === String(year)){
+      s.agreeRev += clampNonNeg(a.price); s.agreeCount++;
+    }
+  });
+  state.calls.forEach(function(c){
+    if(!validISODate(c.date) || c.date.slice(0,4) !== String(year)) return;
+    var b = callBilled(c), col = clampNonNeg(c.collected);
+    s.serviceBilled += b; s.serviceCollected += col; s.callCount++;
+    var mk = monthKey(c.date);
+    if(!s.months[mk]) s.months[mk] = { billed:0, collected:0 };
+    s.months[mk].billed += b; s.months[mk].collected += col;
+  });
+  state.calls.forEach(function(c){ var bal = callBalance(c); if(bal > 0) s.outstanding += bal; });
+  s.agreeRev = Math.round(s.agreeRev*100)/100;
+  s.serviceBilled = Math.round(s.serviceBilled*100)/100;
+  s.serviceCollected = Math.round(s.serviceCollected*100)/100;
+  s.outstanding = Math.round(s.outstanding*100)/100;
+  return s;
+}
+
+/* ---------- seed / sample data ---------- */
+function seedData(){
+  var yr = new Date().getFullYear();
+  var custs = [
+    { id:"c_henderson", demo:true, name:"Mark & Lisa Henderson", address:"1214 Ridgeview Dr", phone:"555-0142", email:"hendersons@example.com",
+      systemType:"Furnace + AC", brand:"Carrier", yearInstalled:2016, tonnage:3, filterSize:"16x25x1", warrantyParts: yr+1+"-06-30", warrantyInstall:"" },
+    { id:"c_okafor", demo:true, name:"Adaeze Okafor", address:"88 Willow Bend Ln", phone:"555-0117", email:"",
+      systemType:"Heat Pump", brand:"Trane", yearInstalled:2021, tonnage:2.5, filterSize:"20x20x1", warrantyParts: yr+6+"-03-15", warrantyInstall: yr+1+"-03-15" },
+    { id:"c_deluca", demo:true, name:"Frank DeLuca", address:"402 Orchard St", phone:"555-0199", email:"fdeluca@example.com",
+      systemType:"Furnace + AC", brand:"Lennox", yearInstalled:2009, tonnage:4, filterSize:"16x20x1", warrantyParts:"", warrantyInstall:"" },
+    { id:"c_pruitt", demo:true, name:"Sandra Pruitt", address:"27 County Line Rd", phone:"555-0163", email:"",
+      systemType:"Furnace Only", brand:"Goodman", yearInstalled:2019, tonnage:0, filterSize:"14x25x1", warrantyParts: yr+4+"-09-01", warrantyInstall:"" },
+    { id:"c_vance", demo:true, name:"Tom & Ray Vance", address:"1905 Elm Terrace", phone:"555-0128", email:"vancebros@example.com",
+      systemType:"AC Only", brand:"Rheem", yearInstalled:2013, tonnage:3.5, filterSize:"20x25x1", warrantyParts:"", warrantyInstall:"" }
+  ];
+  var agrees = [
+    { id:"a_henderson", demo:true, customerId:"c_henderson", tier:"Premium", price:249, startDate: yr+"-01-15", renewalDate:(yr+1)+"-01-15", visitsPerYear:2, visitsUsed:1, status:"active" },
+    { id:"a_okafor", demo:true, customerId:"c_okafor", tier:"Basic", price:179, startDate: addDays(todayISO(),-335), renewalDate: addDays(todayISO(),18), visitsPerYear:2, visitsUsed:2, status:"active" },
+    { id:"a_deluca", demo:true, customerId:"c_deluca", tier:"Premium Plus", price:329, startDate: addDays(todayISO(),-400), renewalDate: addDays(todayISO(),-35), visitsPerYear:2, visitsUsed:1, status:"active" },
+    { id:"a_pruitt", demo:true, customerId:"c_pruitt", tier:"Basic", price:179, startDate: yr+"-03-01", renewalDate:(yr+1)+"-03-01", visitsPerYear:2, visitsUsed:0, status:"active" },
+    { id:"a_vance_old", demo:true, customerId:"c_vance", tier:"Basic", price:169, startDate:(yr-1)+"-05-01", renewalDate: yr+"-05-01", visitsPerYear:2, visitsUsed:2, status:"expired" }
+  ];
+  var calls = [
+    { id:"s_henderson1", demo:true, customerId:"c_henderson", date: yr+"-02-10", complaint:"Furnace short-cycling", diagnosis:"Dirty flame sensor; cleaned and tested", partsUsed:"None", laborHours:1.0, laborRate:95, partsCost:0, collected:95 },
+    { id:"s_deluca1", demo:true, customerId:"c_deluca", date: yr+"-06-18", complaint:"No cooling", diagnosis:"Failed dual-run capacitor; replaced", partsUsed:"45/5 dual-run capacitor", laborHours:1.5, laborRate:95, partsCost:42.50, collected:185 },
+    { id:"s_deluca2", demo:true, customerId:"c_deluca", date: yr+"-07-02", complaint:"Weak airflow upstairs", diagnosis:"Collapsed flex duct in attic; replaced 12 ft run", partsUsed:"12 ft insulated flex duct, straps", laborHours:2.5, laborRate:95, partsCost:86.25, collected:200 },
+    { id:"s_pruitt1", demo:true, customerId:"c_pruitt", date: yr+"-10-05", complaint:"Furnace won't ignite", diagnosis:"Cracked hot-surface igniter; replaced", partsUsed:"Hot-surface igniter", laborHours:1.0, laborRate:95, partsCost:58, collected:0 }
+  ];
+  var fallChecks = FALL_ITEMS.map(function(t,i){ return { item:t, done: i !== 3, note: i===0 ? "Replaced filter" : "" }; });
+  var tunes = [
+    { id:"t_henderson_fall", demo:true, customerId:"c_henderson", agreementId:"a_henderson", season:"Fall (Furnace)", date: yr+"-10-12", tech:"J. Martinez", items: fallChecks, summary:"System heating well. Heat exchanger visual inspection clear. Recommended monitoring inducer motor noise next visit." }
+  ];
+  return {
+    settings: { company:"HeatAir Pros LLC", phone:"555-0100", email:"office@heatairpros.example", defaultLaborRate:95,
+      tierBasic:179, tierPremium:249, tierPremiumPlus:329 },
+    customers: custs, agreements: agrees, calls: calls, tuneups: tunes
+  };
+}
+
+/* ---------- state ---------- */
+var state = null;
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){} }
+function load(){
+  try{
+    var raw = localStorage.getItem(LS_KEY);
+    if(raw){ var parsed = JSON.parse(raw); if(parsed && Array.isArray(parsed.customers)){ state = sanitizeState(parsed); return; } }
+  }catch(e){}
+  state = seedData(); save();
+}
+function sanitizeState(s){
+  function str(v){ return typeof v==="string" ? v : (v==null ? "" : String(v)); }
+  function arr(v){ return Array.isArray(v) ? v : []; }
+  var out = { settings:{ company:"", phone:"", email:"", defaultLaborRate:95, tierBasic:179, tierPremium:249, tierPremiumPlus:329 },
+    customers:[], agreements:[], calls:[], tuneups:[] };
+  if(s.settings){ ["company","phone","email"].forEach(function(k){ out.settings[k]=str(s.settings[k]); });
+    ["defaultLaborRate","tierBasic","tierPremium","tierPremiumPlus"].forEach(function(k){ if(s.settings[k]!=null) out.settings[k]=clampNonNeg(s.settings[k]); }); }
+  arr(s.customers).forEach(function(c){ if(!c || !c.id) return;
+    out.customers.push({ id:str(c.id), demo:!!c.demo, name:str(c.name), address:str(c.address), phone:str(c.phone), email:str(c.email),
+      systemType:str(c.systemType), brand:str(c.brand), yearInstalled: Math.round(num(c.yearInstalled)), tonnage: clampNonNeg(c.tonnage),
+      filterSize:str(c.filterSize), warrantyParts: validISODate(c.warrantyParts)?c.warrantyParts:"", warrantyInstall: validISODate(c.warrantyInstall)?c.warrantyInstall:"" }); });
+  var custIds = {}; out.customers.forEach(function(c){ custIds[c.id]=true; });
+  arr(s.agreements).forEach(function(a){ if(!a || !a.id || !custIds[a.customerId]) return;
+    out.agreements.push({ id:str(a.id), demo:!!a.demo, customerId:a.customerId, tier:str(a.tier)||"Basic",
+      price:clampNonNeg(a.price), startDate: validISODate(a.startDate)?a.startDate:"", renewalDate: validISODate(a.renewalDate)?a.renewalDate:"",
+      visitsPerYear: Math.max(1, Math.round(num(a.visitsPerYear))||2), visitsUsed: Math.max(0, Math.round(num(a.visitsUsed))),
+      status: ["active","expired","cancelled"].indexOf(a.status)>=0 ? a.status : "active" }); });
+  arr(s.calls).forEach(function(c){ if(!c || !c.id || !custIds[c.customerId] || !validISODate(c.date)) return;
+    out.calls.push({ id:str(c.id), demo:!!c.demo, customerId:c.customerId, date:c.date, complaint:str(c.complaint), diagnosis:str(c.diagnosis),
+      partsUsed:str(c.partsUsed), laborHours:clampNonNeg(c.laborHours), laborRate:clampNonNeg(c.laborRate), partsCost:clampNonNeg(c.partsCost), collected:clampNonNeg(c.collected) }); });
+  arr(s.tuneups).forEach(function(t){ if(!t || !t.id || !custIds[t.customerId] || !validISODate(t.date)) return;
+    var items = arr(t.items).filter(function(it){ return it && typeof it.item==="string"; }).map(function(it){ return { item:it.item, done:!!it.done, note:str(it.note) }; });
+    out.tuneups.push({ id:str(t.id), demo:!!t.demo, customerId:t.customerId, agreementId:str(t.agreementId), season: t.season==="Spring (AC)" ? "Spring (AC)" : "Fall (Furnace)",
+      date:t.date, tech:str(t.tech), items:items, summary:str(t.summary) }); });
+  out.legal = sanitizeLegal(s.legal);
+  return out;
+}
+
+/* ---------- lookups ---------- */
+function custById(id){ for(var i=0;i<state.customers.length;i++) if(state.customers[i].id===id) return state.customers[i]; return null; }
+function custName(id){ var c = custById(id); return c ? c.name : "(deleted customer)"; }
+function tierPrice(tier){ if(tier==="Premium") return num(state.settings.tierPremium); if(tier==="Premium Plus") return num(state.settings.tierPremiumPlus); return num(state.settings.tierBasic); }
+
+/* ---------- UI state ---------- */
+var ui = { tab:"dash", search:"", editCustomer:null, editAgreement:null, editCall:null, editTune:null, year: new Date().getFullYear() };
+var flashMsg = "";
+function flash(m){ flashMsg = m; render(); window.scrollTo(0,0); }
+
+var app = document.getElementById("app");
+document.getElementById("tabs").addEventListener("click", function(e){
+  var b = e.target.closest("button[data-tab]"); if(!b) return;
+  ui.tab = b.getAttribute("data-tab");
+  document.querySelectorAll("#tabs button").forEach(function(x){ x.classList.toggle("active", x===b); });
+  render();
+});
+function setTab(t){ ui.tab = t; document.querySelectorAll("#tabs button").forEach(function(x){ x.classList.toggle("active", x.getAttribute("data-tab")===t); }); render(); }
+
+/* ---------- render ---------- */
+function render(){
+  document.getElementById("hdrCompany").textContent = (state.settings.company ? state.settings.company + " — " : "") + "HVAC Service & Maintenance-Agreement Tracker";
+  var html = "";
+  if(flashMsg){ html += '<div class="flash">'+esc(flashMsg)+'</div>'; flashMsg=""; }
+  if(ui.tab==="dash") html += viewDash();
+  else if(ui.tab==="cust") html += viewCustomers();
+  else if(ui.tab==="agree") html += viewAgreements();
+  else if(ui.tab==="calls") html += viewCalls();
+  else if(ui.tab==="tune") html += viewTuneups();
+  else if(ui.tab==="set") html += viewSettings();
+  else if(ui.tab==="help") html += viewHelp();
+  app.innerHTML = html;
+  bindView();
+}
+function pillForRenewal(a){
+  var st = renewalState(a, todayISO());
+  if(st==="due-soon") return '<span class="pill warn">RENEWS ≤30 DAYS</span>';
+  if(st==="overdue") return '<span class="pill bad">RENEWAL OVERDUE</span>';
+  if(st==="active") return '<span class="pill ok">Active</span>';
+  if(st==="expired") return '<span class="pill grey">Expired</span>';
+  return '<span class="pill grey">Cancelled</span>';
+}
+function viewDash(){
+  var yr = ui.year, s = moneySummary(state, yr);
+  var dueSoon = state.agreements.filter(function(a){ var st = renewalState(a, todayISO()); return st==="due-soon" || st==="overdue"; });
+  var visitsOwed = 0; state.agreements.forEach(function(a){ if(a.status==="active") visitsOwed += visitsLeft(a); });
+  var unpaid = state.calls.filter(function(c){ return callBalance(c) > 0; });
+  var h = '<div class="card"><h2>Dashboard — '+yr+'</h2><div class="grid">';
+  h += '<div class="stat"><div class="n">'+money(s.agreeRev)+'</div><div class="l">Agreement revenue ('+yr+' starts)</div></div>';
+  h += '<div class="stat"><div class="n">'+money(s.serviceBilled)+'</div><div class="l">Service billed ('+yr+')</div></div>';
+  h += '<div class="stat"><div class="n">'+money(s.serviceCollected)+'</div><div class="l">Service collected ('+yr+')</div></div>';
+  h += '<div class="stat"><div class="n">'+money(s.outstanding)+'</div><div class="l">Outstanding balances (all time)</div></div>';
+  h += '<div class="stat"><div class="n">'+visitsOwed+'</div><div class="l">Agreement visits still owed</div></div>';
+  h += '<div class="stat"><div class="n">'+state.customers.length+'</div><div class="l">Customers on file</div></div>';
+  h += '</div><div class="row" style="margin-top:10px"><div><label>Money year</label><input inputmode="decimal" type="number" id="dashYear" value="'+yr+'"></div><div style="align-self:end"><button class="btn ghost" id="dashYearBtn">Show year</button></div></div></div>';
+
+  h += '<div class="card"><h2>Renewals needing attention</h2>';
+  if(!dueSoon.length) h += '<div class="empty">No renewals due in the next 30 days. 🎉</div>';
+  else { h += '<table><tr><th>Customer</th><th>Tier</th><th>Renews</th><th>Status</th></tr>';
+    dueSoon.forEach(function(a){ h += '<tr><td>'+esc(custName(a.customerId))+'</td><td>'+esc(a.tier)+'</td><td>'+fmtDate(a.renewalDate)+'</td><td>'+pillForRenewal(a)+'</td></tr>'; });
+    h += '</table>'; }
+  h += '</div>';
+
+  h += '<div class="card"><h2>Unpaid service balances</h2>';
+  if(!unpaid.length) h += '<div class="empty">Nothing outstanding — every call is paid up.</div>';
+  else { h += '<table><tr><th>Date</th><th>Customer</th><th>Complaint</th><th>Balance</th></tr>';
+    unpaid.forEach(function(c){ h += '<tr><td>'+fmtDate(c.date)+'</td><td>'+esc(custName(c.customerId))+'</td><td>'+esc(c.complaint)+'</td><td class="money">'+money(callBalance(c))+'</td></tr>'; });
+    h += '</table>'; }
+  h += '</div>';
+
+  var mkeys = Object.keys(s.months).sort();
+  h += '<div class="card"><h2>Service money by month — '+yr+'</h2>';
+  if(!mkeys.length) h += '<div class="empty">No service calls logged in '+yr+' yet.</div>';
+  else { h += '<table><tr><th>Month</th><th>Billed</th><th>Collected</th></tr>';
+    mkeys.forEach(function(k){ h += '<tr><td>'+k+'</td><td class="money">'+money(s.months[k].billed)+'</td><td class="money">'+money(s.months[k].collected)+'</td></tr>'; });
+    h += '</table>'; }
+  h += '<p class="mut">Agreement revenue counts agreements that started in the year shown. Service money counts calls by call date. Outstanding is all-time.</p></div>';
+  return h;
+}
+function custOptions(sel){ return state.customers.map(function(c){ return '<option value="'+esc(c.id)+'"'+(c.id===sel?" selected":"")+'>'+esc(c.name)+'</option>'; }).join(""); }
+function viewCustomers(){
+  var q = ui.search.toLowerCase();
+  var list = state.customers.filter(function(c){ return !q || (c.name+" "+c.address+" "+c.brand+" "+c.systemType).toLowerCase().indexOf(q)>=0; });
+  var h = '<div class="card"><h2>Customers &amp; Systems</h2><div class="searchbar"><input id="custSearch" placeholder="Search name, address, brand…" value="'+esc(ui.search)+'"><button class="btn primary" id="addCust">+ Add customer</button></div>';
+  if(!list.length) h += '<div class="empty">No customers match. Add your first customer above.</div>';
+  list.forEach(function(c){
+    var sysAge = c.yearInstalled ? (new Date().getFullYear() - c.yearInstalled) + " yrs old" : "";
+    h += '<div class="card" style="margin-bottom:8px"><b>'+esc(c.name)+'</b> <span class="mut">'+esc(c.address)+'</span><br>';
+    h += '<span class="pill blue">'+esc(c.systemType||"System")+'</span> '+esc(c.brand)+(c.yearInstalled?' · installed '+c.yearInstalled+' ('+sysAge+')':'')+(c.tonnage?' · '+c.tonnage+' ton':'')+'<br>';
+    h += '<span class="mut">Filter: '+esc(c.filterSize||"—")+' · Parts warranty: '+(c.warrantyParts?fmtDate(c.warrantyParts):"—")+' · Install warranty: '+(c.warrantyInstall?fmtDate(c.warrantyInstall):"—")+'</span><br>';
+    h += '<span class="mut">'+esc(c.phone)+(c.email?' · '+esc(c.email):'')+'</span>';
+    h += '<div class="btnrow"><button class="btn small ghost" data-editcust="'+esc(c.id)+'">Edit</button><button class="btn small ghost" data-printcust="'+esc(c.id)+'">Print record</button><button class="btn small danger" data-delcust="'+esc(c.id)+'">Delete</button></div></div>';
+  });
+  h += '</div>';
+  if(ui.editCustomer!==null){
+    var c = ui.editCustomer==="new" ? { name:"", address:"", phone:"", email:"", systemType:"Furnace + AC", brand:"", yearInstalled:"", tonnage:"", filterSize:"", warrantyParts:"", warrantyInstall:"" } : custById(ui.editCustomer);
+    if(c){ h += '<div class="card"><h2>'+(ui.editCustomer==="new"?"Add customer":"Edit customer")+'</h2>'
+      + fld("Name", "f_name", c.name) + fld("Address","f_address",c.address)
+      + '<div class="row"><div>'+fld("Phone","f_phone",c.phone)+'</div><div>'+fld("Email","f_email",c.email)+'</div></div>'
+      + '<div class="row"><div><label>System type</label><select id="f_systemType">'+["Furnace + AC","Heat Pump","Furnace Only","AC Only","Boiler","Mini-Split"].map(function(t){return '<option'+(t===c.systemType?" selected":"")+'>'+t+'</option>';}).join("")+'</select></div>'
+      + '<div>'+fld("Brand","f_brand",c.brand)+'</div></div>'
+      + '<div class="row"><div>'+fldNum("Year installed","f_year",c.yearInstalled)+'</div><div>'+fldNum("Tonnage","f_tonnage",c.tonnage)+'</div><div>'+fld("Filter size","f_filter",c.filterSize)+'</div></div>'
+      + '<div class="row"><div>'+fldDate("Parts warranty ends","f_warrp",c.warrantyParts)+'</div><div>'+fldDate("Install warranty ends","f_warri",c.warrantyInstall)+'</div></div>'
+      + '<div class="btnrow"><button class="btn primary" id="saveCust">Save customer</button><button class="btn ghost" id="cancelEdit">Cancel</button></div></div>';
+    }
+  }
+  return h;
+}
+function fld(l,id,v){ return '<label>'+l+'</label><input id="'+id+'" value="'+esc(v==null?"":v)+'">'; }
+function fldNum(l,id,v){ return '<label>'+l+'</label><input inputmode="decimal" id="'+id+'" type="number" step="any" value="'+esc(v==null?"":v)+'">'; }
+function fldDate(l,id,v){ return '<label>'+l+'</label><input id="'+id+'" type="date" value="'+esc(v||"")+'">'; }
+function fldArea(l,id,v){ return '<label>'+l+'</label><textarea id="'+id+'">'+esc(v||"")+'</textarea>'; }
+function val(id){ var el = document.getElementById(id); return el ? el.value : ""; }
+
+function viewAgreements(){
+  var h = '<div class="card"><h2>Maintenance Agreements</h2><button class="btn primary" id="addAgree">+ Add agreement</button>';
+  if(!state.agreements.length) h += '<div class="empty">No agreements yet.</div>';
+  else { h += '<table><tr><th>Customer</th><th>Tier</th><th>Price</th><th>Visits</th><th>Renews</th><th>Status</th><th></th></tr>';
+    state.agreements.slice().sort(function(a,b){ return (a.renewalDate||"9999") < (b.renewalDate||"9999") ? -1 : 1; }).forEach(function(a){
+      h += '<tr><td>'+esc(custName(a.customerId))+'</td><td>'+esc(a.tier)+'</td><td class="money">'+money(a.price)+'</td><td>'+visitsUsed(a)+' of '+visitsPerYear(a)+' used · <b>'+visitsLeft(a)+' left</b></td><td>'+fmtDate(a.renewalDate)+'</td><td>'+pillForRenewal(a)+'</td>'
+        + '<td><button class="btn small ghost" data-editagree="'+esc(a.id)+'">Edit</button> <button class="btn small ghost" data-usevisit="'+esc(a.id)+'">Use visit</button> <button class="btn small danger" data-delagree="'+esc(a.id)+'">Del</button></td></tr>';
+    });
+    h += '</table>'; }
+  h += '<p class="mut">“Use visit” records one agreement visit as used. Renewals due within 30 days are flagged automatically.</p></div>';
+  if(ui.editAgreement!==null){
+    var a = ui.editAgreement==="new" ? { customerId: state.customers.length?state.customers[0].id:"", tier:"Basic", price: tierPrice("Basic"), startDate: todayISO(), renewalDate: addDays(todayISO(),365), visitsPerYear:2, visitsUsed:0, status:"active" } : state.agreements.filter(function(x){return x.id===ui.editAgreement;})[0];
+    if(a){ h += '<div class="card"><h2>'+(ui.editAgreement==="new"?"Add agreement":"Edit agreement")+'</h2>'
+      + '<label>Customer</label><select id="a_cust">'+custOptions(a.customerId)+'</select>'
+      + '<div class="row"><div><label>Tier</label><select id="a_tier">'+["Basic","Premium","Premium Plus","Custom"].map(function(t){return '<option'+(t===a.tier?" selected":"")+'>'+t+'</option>';}).join("")+'</select></div>'
+      + '<div>'+fldNum("Price ($)","a_price",a.price)+'</div></div>'
+      + '<div class="row"><div>'+fldDate("Start date","a_start",a.startDate)+'</div><div>'+fldDate("Renewal date","a_renewal",a.renewalDate)+'</div></div>'
+      + '<div class="row"><div>'+fldNum("Visits per year","a_vpy",a.visitsPerYear)+'</div><div>'+fldNum("Visits used","a_vused",a.visitsUsed)+'</div>'
+      + '<div><label>Status</label><select id="a_status">'+["active","expired","cancelled"].map(function(t){return '<option value="'+t+'"'+(t===a.status?" selected":"")+'>'+t+'</option>';}).join("")+'</select></div></div>'
+      + '<div class="btnrow"><button class="btn primary" id="saveAgree">Save agreement</button><button class="btn ghost" id="cancelEdit">Cancel</button></div></div>';
+    } else if(!state.customers.length){ h += '<div class="card">Add a customer first — agreements attach to a customer.</div>'; }
+  }
+  return h;
+}
+function viewCalls(){
+  var h = '<div class="card"><h2>Service Calls</h2><button class="btn primary" id="addCall">+ Log service call</button>';
+  if(!state.calls.length) h += '<div class="empty">No service calls logged yet.</div>';
+  else { h += '<table><tr><th>Date</th><th>Customer</th><th>Complaint → Diagnosis</th><th>Billed</th><th>Collected</th><th>Balance</th><th></th></tr>';
+    state.calls.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; }).forEach(function(c){
+      var bal = callBalance(c);
+      h += '<tr><td>'+fmtDate(c.date)+'</td><td>'+esc(custName(c.customerId))+'</td><td>'+esc(c.complaint)+(c.diagnosis?'<br><span class="mut">'+esc(c.diagnosis)+'</span>':'')+(c.partsUsed?'<br><span class="mut">Parts: '+esc(c.partsUsed)+'</span>':'')+'</td>'
+        + '<td class="money">'+money(callBilled(c))+'</td><td class="money">'+money(c.collected)+'</td><td class="money">'+(bal>0?'<span class="pill bad">'+money(bal)+' owed</span>':money(0))+'</td>'
+        + '<td><button class="btn small ghost" data-editcall="'+esc(c.id)+'">Edit</button> <button class="btn small danger" data-delcall="'+esc(c.id)+'">Del</button></td></tr>';
+    });
+    h += '</table><p class="mut">Billed = labor hours × rate + parts cost.</p>'; }
+  h += '</div>';
+  if(ui.editCall!==null){
+    var c = ui.editCall==="new" ? { customerId: state.customers.length?state.customers[0].id:"", date: todayISO(), complaint:"", diagnosis:"", partsUsed:"", laborHours:1, laborRate: num(state.settings.defaultLaborRate), partsCost:0, collected:0 } : state.calls.filter(function(x){return x.id===ui.editCall;})[0];
+    if(c){ h += '<div class="card"><h2>'+(ui.editCall==="new"?"Log service call":"Edit service call")+'</h2>'
+      + '<div class="row"><div><label>Customer</label><select id="s_cust">'+custOptions(c.customerId)+'</select></div><div>'+fldDate("Date","s_date",c.date)+'</div></div>'
+      + fld("Complaint","s_complaint",c.complaint) + fld("Diagnosis","s_diagnosis",c.diagnosis) + fld("Parts used","s_parts",c.partsUsed)
+      + '<div class="row"><div>'+fldNum("Labor hours","s_hours",c.laborHours)+'</div><div>'+fldNum("Labor rate ($/hr)","s_rate",c.laborRate)+'</div><div>'+fldNum("Parts cost ($)","s_partscost",c.partsCost)+'</div><div>'+fldNum("Collected ($)","s_collected",c.collected)+'</div></div>'
+      + '<p class="mut" id="s_preview"></p>'
+      + '<div class="btnrow"><button class="btn primary" id="saveCall">Save call</button><button class="btn ghost" id="cancelEdit">Cancel</button></div></div>';
+    } else if(!state.customers.length){ h += '<div class="card">Add a customer first — calls attach to a customer.</div>'; }
+  }
+  return h;
+}
+function viewTuneups(){
+  var h = '<div class="card"><h2>Tune-Ups</h2><button class="btn primary" id="addTune">+ New tune-up</button>';
+  if(!state.tuneups.length) h += '<div class="empty">No tune-ups recorded yet.</div>';
+  state.tuneups.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; }).forEach(function(t){
+    var done = t.items.filter(function(i){return i.done;}).length;
+    h += '<div class="card" style="margin-bottom:8px"><b>'+esc(t.season)+'</b> — '+esc(custName(t.customerId))+' <span class="mut">'+fmtDate(t.date)+(t.tech?' · '+esc(t.tech):'')+'</span><br>'
+      + '<span class="mut">'+done+' of '+t.items.length+' checklist items done</span>'
+      + '<div class="btnrow"><button class="btn small ghost" data-edittune="'+esc(t.id)+'">Open / edit</button><button class="btn small ghost" data-printtune="'+esc(t.id)+'">Print summary</button><button class="btn small danger" data-deltune="'+esc(t.id)+'">Delete</button></div></div>';
+  });
+  h += '</div>';
+  if(ui.editTune!==null){
+    var t = ui.editTune==="new" ? null : state.tuneups.filter(function(x){return x.id===ui.editTune;})[0];
+    if(ui.editTune==="new"){
+      h += '<div class="card"><h2>New tune-up</h2><label>Customer</label><select id="t_cust">'+custOptions("")+'</select>'
+        + '<div class="row"><div><label>Season</label><select id="t_season"><option>Fall (Furnace)</option><option>Spring (AC)</option></select></div><div>'+fldDate("Date","t_date",todayISO())+'</div><div>'+fld("Technician","t_tech","")+'</div></div>'
+        + '<div class="btnrow"><button class="btn primary" id="createTune">Start checklist</button><button class="btn ghost" id="cancelEdit">Cancel</button></div></div>';
+    } else if(t){
+      h += '<div class="card"><h2>'+esc(t.season)+' — '+esc(custName(t.customerId))+'</h2>'
+        + '<div class="row"><div>'+fldDate("Date","t_date",t.date)+'</div><div>'+fld("Technician","t_tech",t.tech)+'</div></div>'
+        + '<h3>Checklist</h3><div id="t_items">'
+        + t.items.map(function(it,i){ return '<div class="checkitem"><input type="checkbox" data-tcheck="'+i+'"'+(it.done?" checked":"")+'><div class="note">'+esc(it.item)+'<input data-tnote="'+i+'" value="'+esc(it.note)+'" placeholder="Note (optional)"></div></div>'; }).join("")
+        + '</div>' + fldArea("Visit summary (prints on the homeowner copy)","t_summary",t.summary)
+        + '<div class="btnrow"><button class="btn primary" id="saveTune">Save tune-up</button><button class="btn ghost" data-printtune="'+esc(t.id)+'">Print summary</button><button class="btn ghost" id="cancelEdit">Close</button></div></div>';
+    }
+  }
+  return h;
+}
+function viewSettings(){
+  var st = state.settings;
+  var h = '<div class="card"><h2>Settings</h2>'
+    + fld("Company name","set_company",st.company)
+    + '<div class="row"><div>'+fld("Phone","set_phone",st.phone)+'</div><div>'+fld("Email","set_email",st.email)+'</div></div>'
+    + '<div class="row"><div>'+fldNum("Default labor rate ($/hr)","set_rate",st.defaultLaborRate)+'</div></div>'
+    + '<h3>Agreement tier prices (defaults for new agreements)</h3><div class="row"><div>'+fldNum("Basic ($)","set_tb",st.tierBasic)+'</div><div>'+fldNum("Premium ($)","set_tp",st.tierPremium)+'</div><div>'+fldNum("Premium Plus ($)","set_tpp",st.tierPremiumPlus)+'</div></div>'
+    + '<div class="btnrow"><button class="btn primary" id="saveSettings">Save settings</button></div></div>'
+    + '<div class="card"><h2>Backup</h2><p class="mut">Your data lives only in this browser on this device. Export a backup regularly — it is the only recovery path if the browser is cleared or the phone is lost.</p>'
+    + '<div class="btnrow"><button class="btn" id="exportBtn">Export backup (JSON)</button><label class="btn ghost" style="text-align:center">Import backup<input type="file" id="importFile" accept=".json,application/json" style="display:none"></label></div></div>'
+    + '<div class="card"><h2>Sample data</h2><p class="mut">The app loads with sample customers so you can see it working. Clear them when you are ready to run for real — your own records are never touched.</p>'
+    + '<div class="btnrow"><button class="btn ghost" id="clearDemo">Clear sample data</button><button class="btn danger" id="eraseAll">Erase EVERYTHING</button></div></div><div id="legalSection"></div>';
+  return h;
+}
+
+function viewHelp(){
+  var h = '<div class="card"><h2>What HeatAir Book does</h2>'
+    + '<p class="mut">A field book for an HVAC shop: <b>Customers &amp; Systems</b> keeps each customer\'s equipment, filter size, and warranty dates; <b>Agreements</b> tracks maintenance plans, the visits each plan includes, and renewal dates; <b>Service Calls</b> logs complaints, diagnoses, and balances; <b>Tune-Ups</b> works the seasonal visit list. The Dashboard surfaces renewals coming due and money still owed.</p></div>'
+    + '<div class="card"><h2>Where your data lives</h2>'
+    + '<p class="mut">Your data lives only in this browser on this device — no account, no cloud, nothing uploaded. Export a backup regularly (Settings &amp; Backup \u2192 Export backup (JSON)); it is the only recovery path if the browser is cleared or the phone is lost. Import backup restores that file on this or another device.</p></div>'
+    + '<div class="card"><h2>The honest limits</h2>'
+    + '<p class="mut">HeatAir Book keeps records — it does not send renewal reminders or texts, take payments, dispatch techs, or sync between devices. Renewal dates and balances are only as current as what you log. Sample customers are loaded so you can see it working; clear them from Settings &amp; Backup when you are ready to run for real — your own records are never touched by that clear.</p></div>';
+  return h;
+}
+
+/* ---------- print views ---------- */
+function printCustomer(id){
+  var c = custById(id); if(!c) return;
+  var calls = state.calls.filter(function(x){return x.customerId===id;}).sort(function(a,b){return a.date<b.date?1:-1;});
+  var ags = state.agreements.filter(function(x){return x.customerId===id;});
+  var w = window.open("","_blank"); if(!w){ alert("Pop-ups are blocked — allow pop-ups to print."); return; }
+  var html = '<html><head><title>Customer Record</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#222}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #ccc;padding:6px;text-align:left}h1{font-size:20px}</style></head><body>'
+    + '<h1>'+esc(state.settings.company||"HeatAir Book")+' — Customer Record</h1>'
+    + '<p><b>'+esc(c.name)+'</b><br>'+esc(c.address)+'<br>'+esc(c.phone)+(c.email?' · '+esc(c.email):'')+'</p>'
+    + '<p>System: '+esc(c.systemType)+' · '+esc(c.brand)+(c.yearInstalled?' · installed '+c.yearInstalled:'')+(c.tonnage?' · '+c.tonnage+' ton':'')+'<br>Filter size: '+esc(c.filterSize||"—")+'<br>Parts warranty ends: '+(c.warrantyParts?fmtDate(c.warrantyParts):"—")+' · Install warranty ends: '+(c.warrantyInstall?fmtDate(c.warrantyInstall):"—")+'</p>';
+  if(ags.length){ html += '<h3>Agreements</h3><table><tr><th>Tier</th><th>Price</th><th>Visits</th><th>Renews</th><th>Status</th></tr>' + ags.map(function(a){ return '<tr><td>'+esc(a.tier)+'</td><td>'+money(a.price)+'</td><td>'+visitsUsed(a)+' of '+visitsPerYear(a)+' used</td><td>'+fmtDate(a.renewalDate)+'</td><td>'+a.status+'</td></tr>'; }).join("") + '</table>'; }
+  if(calls.length){ html += '<h3>Service history</h3><table><tr><th>Date</th><th>Complaint</th><th>Diagnosis</th><th>Billed</th><th>Balance</th></tr>' + calls.map(function(x){ return '<tr><td>'+fmtDate(x.date)+'</td><td>'+esc(x.complaint)+'</td><td>'+esc(x.diagnosis)+'</td><td>'+money(callBilled(x))+'</td><td>'+money(callBalance(x))+'</td></tr>'; }).join("") + '</table>'; }
+  html += '</body></html>';
+  w.document.write(html); w.document.close(); w.focus(); w.print();
+}
+function printTuneup(id){
+  var t = state.tuneups.filter(function(x){return x.id===id;})[0]; if(!t) return;
+  var c = custById(t.customerId);
+  var w = window.open("","_blank"); if(!w){ alert("Pop-ups are blocked — allow pop-ups to print."); return; }
+  var html = '<html><head><title>Tune-Up Summary</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#222}table{width:100%;border-collapse:collapse}td{border-bottom:1px solid #ddd;padding:5px}.sig{margin-top:30px;display:flex;gap:30px}.sig div{flex:1;border-top:1px solid #444;padding-top:4px;font-size:12px}</style></head><body>'
+    + '<h1>'+esc(state.settings.company||"HeatAir Book")+'</h1><h2>'+esc(t.season)+' Tune-Up — '+fmtDate(t.date)+'</h2>'
+    + '<p><b>'+esc(custName(t.customerId))+'</b>'+(c?'<br>'+esc(c.address)+'<br>System: '+esc(c.systemType)+' · '+esc(c.brand)+' · Filter: '+esc(c.filterSize||"—"):'')+(t.tech?'<br>Technician: '+esc(t.tech):'')+'</p>'
+    + '<table>' + t.items.map(function(it){ return '<tr><td style="width:26px">'+(it.done?"☑":"☐")+'</td><td>'+esc(it.item)+(it.note?' — <i>'+esc(it.note)+'</i>':'')+'</td></tr>'; }).join("") + '</table>'
+    + (t.summary?'<h3>Summary</h3><p>'+esc(t.summary)+'</p>':'')
+    + '<div class="sig"><div>Technician signature</div><div>Homeowner signature</div></div></body></html>';
+  w.document.write(html); w.document.close(); w.focus(); w.print();
+}
+
+/* ---------- view bindings ---------- */
+function bindView(){
+  function on(id, ev, fn){ var el = document.getElementById(id); if(el) el.addEventListener(ev, fn); }
+  on("dashYearBtn","click",function(){ ui.year = Math.round(num(val("dashYear"))) || new Date().getFullYear(); render(); });
+  on("custSearch","input",function(e){ ui.search = e.target.value; render(); var el=document.getElementById("custSearch"); el.focus(); el.setSelectionRange(el.value.length, el.value.length); });
+  on("addCust","click",function(){ ui.editCustomer="new"; render(); });
+  on("saveCust","click",function(){
+    var rec = { name: val("f_name").trim(), address: val("f_address").trim(), phone: val("f_phone").trim(), email: val("f_email").trim(),
+      systemType: val("f_systemType"), brand: val("f_brand").trim(), yearInstalled: Math.round(num(val("f_year"))), tonnage: clampNonNeg(val("f_tonnage")),
+      filterSize: val("f_filter").trim(), warrantyParts: validISODate(val("f_warrp"))?val("f_warrp"):"", warrantyInstall: validISODate(val("f_warri"))?val("f_warri"):"" };
+    if(!rec.name){ alert("Name is required."); return; }
+    if(ui.editCustomer==="new"){ rec.id = uid("c"); rec.demo=false; state.customers.push(rec); }
+    else { var old = custById(ui.editCustomer); Object.keys(rec).forEach(function(k){ old[k]=rec[k]; }); }
+    save(); ui.editCustomer=null; flash("Customer saved."); render();
+  });
+  on("addAgree","click",function(){ ui.editAgreement="new"; render(); });
+  on("saveAgree","click",function(){
+    var rec = { customerId: val("a_cust"), tier: val("a_tier"), price: clampNonNeg(val("a_price")),
+      startDate: validISODate(val("a_start"))?val("a_start"):"", renewalDate: validISODate(val("a_renewal"))?val("a_renewal"):"",
+      visitsPerYear: Math.max(1, Math.round(num(val("a_vpy")))||2), visitsUsed: Math.max(0, Math.round(num(val("a_vused")))), status: val("a_status") };
+    if(!custById(rec.customerId)){ alert("Pick a customer first."); return; }
+    if(ui.editAgreement==="new"){ rec.id = uid("a"); rec.demo=false; state.agreements.push(rec); }
+    else { var old = state.agreements.filter(function(x){return x.id===ui.editAgreement;})[0]; Object.keys(rec).forEach(function(k){ old[k]=rec[k]; }); }
+    save(); ui.editAgreement=null; flash("Agreement saved."); render();
+  });
+  on("a_tier","change",function(e){ var p = document.getElementById("a_price"); if(p && e.target.value!=="Custom") p.value = tierPrice(e.target.value); });
+  on("addCall","click",function(){ ui.editCall="new"; render(); });
+  function updPreview(){ var p = document.getElementById("s_preview"); if(!p) return;
+    var tmp = { laborHours: val("s_hours"), laborRate: val("s_rate"), partsCost: val("s_partscost"), collected: val("s_collected") };
+    p.textContent = "Billed: " + money(callBilled(tmp)) + " · Balance after collected: " + money(callBalance(tmp)); }
+  ["s_hours","s_rate","s_partscost","s_collected"].forEach(function(id){ on(id,"input",updPreview); });
+  if(document.getElementById("s_preview")) updPreview();
+  on("saveCall","click",function(){
+    var rec = { customerId: val("s_cust"), date: val("s_date"), complaint: val("s_complaint").trim(), diagnosis: val("s_diagnosis").trim(),
+      partsUsed: val("s_parts").trim(), laborHours: clampNonNeg(val("s_hours")), laborRate: clampNonNeg(val("s_rate")), partsCost: clampNonNeg(val("s_partscost")), collected: clampNonNeg(val("s_collected")) };
+    if(!custById(rec.customerId)){ alert("Pick a customer first."); return; }
+    if(!validISODate(rec.date)){ alert("A valid date is required."); return; }
+    if(ui.editCall==="new"){ rec.id = uid("s"); rec.demo=false; state.calls.push(rec); }
+    else { var old = state.calls.filter(function(x){return x.id===ui.editCall;})[0]; Object.keys(rec).forEach(function(k){ old[k]=rec[k]; }); }
+    save(); ui.editCall=null; flash("Service call saved."); render();
+  });
+  on("addTune","click",function(){ ui.editTune="new"; render(); });
+  on("createTune","click",function(){
+    var cid = val("t_cust"); if(!custById(cid)){ alert("Add a customer first."); return; }
+    var season = val("t_season");
+    var items = (season==="Spring (AC)" ? SPRING_ITEMS : FALL_ITEMS).map(function(t){ return { item:t, done:false, note:"" }; });
+    var rec = { id: uid("t"), demo:false, customerId: cid, agreementId:"", season: season, date: validISODate(val("t_date"))?val("t_date"):todayISO(), tech: val("t_tech").trim(), items: items, summary:"" };
+    state.tuneups.push(rec);
+    var ag = state.agreements.filter(function(a){ return a.customerId===cid && a.status==="active"; })[0];
+    if(ag && visitsLeft(ag) > 0){ ag.visitsUsed = visitsUsed(ag) + 1; rec.agreementId = ag.id; }
+    save(); ui.editTune = rec.id; flash("Tune-up started." + (rec.agreementId ? " One agreement visit marked used." : "")); render();
+  });
+  on("saveTune","click",function(){
+    var t = state.tuneups.filter(function(x){return x.id===ui.editTune;})[0]; if(!t) return;
+    t.date = validISODate(val("t_date")) ? val("t_date") : t.date;
+    t.tech = val("t_tech").trim(); t.summary = val("t_summary");
+    t.items.forEach(function(it,i){ var cb = document.querySelector('[data-tcheck="'+i+'"]'); var nt = document.querySelector('[data-tnote="'+i+'"]'); if(cb) it.done = cb.checked; if(nt) it.note = nt.value; });
+    save(); flash("Tune-up saved."); render();
+  });
+  on("cancelEdit","click",function(){ ui.editCustomer=ui.editAgreement=ui.editCall=ui.editTune=null; render(); });
+  on("saveSettings","click",function(){
+    state.settings.company = val("set_company").trim(); state.settings.phone = val("set_phone").trim(); state.settings.email = val("set_email").trim();
+    state.settings.defaultLaborRate = clampNonNeg(val("set_rate"));
+    state.settings.tierBasic = clampNonNeg(val("set_tb")); state.settings.tierPremium = clampNonNeg(val("set_tp")); state.settings.tierPremiumPlus = clampNonNeg(val("set_tpp"));
+    save(); flash("Settings saved."); render();
+  });
+  on("exportBtn","click",function(){
+    var blob = new Blob([JSON.stringify(state,null,2)], { type:"application/json" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "heatairbook-backup.json"; a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  });
+  on("importFile","change",function(e){
+    var f = e.target.files && e.target.files[0]; if(!f) return;
+    var r = new FileReader();
+    r.onload = function(){ try{ var parsed = JSON.parse(r.result); if(!parsed || !Array.isArray(parsed.customers)) throw new Error("bad shape");
+      state = sanitizeState(parsed); save(); ui.editCustomer=ui.editAgreement=ui.editCall=ui.editTune=null; flash("Backup imported."); render();
+    }catch(err){ alert("That file is not a valid HeatAir Book backup. Nothing was changed."); } };
+    r.readAsText(f);
+  });
+  on("clearDemo","click",function(){
+    if(!confirm("Remove all sample customers, agreements, calls and tune-ups? Your own records stay.")) return;
+    state.customers = state.customers.filter(function(c){return !c.demo;});
+    var ids = {}; state.customers.forEach(function(c){ ids[c.id]=true; });
+    state.agreements = state.agreements.filter(function(a){return !a.demo && ids[a.customerId];});
+    state.calls = state.calls.filter(function(c){return !c.demo && ids[c.customerId];});
+    state.tuneups = state.tuneups.filter(function(t){return !t.demo && ids[t.customerId];});
+    save(); flash("Sample data cleared."); render();
+  });
+  on("eraseAll","click",function(){
+    if(!confirm("Erase EVERYTHING, including your own records? Export a backup first if unsure.")) return;
+    if(!confirm("Really erase all HeatAir Book data on this device?")) return;
+    state = { settings: state.settings, customers:[], agreements:[], calls:[], tuneups:[] };
+    save(); flash("All data erased."); render();
+  });
+  /* delegated row buttons */
+  app.querySelectorAll("[data-editcust]").forEach(function(b){ b.addEventListener("click",function(){ ui.editCustomer=b.getAttribute("data-editcust"); setTabKeep("cust"); }); });
+  app.querySelectorAll("[data-delcust]").forEach(function(b){ b.addEventListener("click",function(){
+    var id = b.getAttribute("data-delcust");
+    if(!confirm("Delete this customer AND their agreements, calls and tune-ups?")) return;
+    state.customers = state.customers.filter(function(c){return c.id!==id;});
+    state.agreements = state.agreements.filter(function(a){return a.customerId!==id;});
+    state.calls = state.calls.filter(function(c){return c.customerId!==id;});
+    state.tuneups = state.tuneups.filter(function(t){return t.customerId!==id;});
+    save(); flash("Customer deleted."); render();
+  }); });
+  app.querySelectorAll("[data-printcust]").forEach(function(b){ b.addEventListener("click",function(){ printCustomer(b.getAttribute("data-printcust")); }); });
+  app.querySelectorAll("[data-editagree]").forEach(function(b){ b.addEventListener("click",function(){ ui.editAgreement=b.getAttribute("data-editagree"); render(); }); });
+  app.querySelectorAll("[data-delagree]").forEach(function(b){ b.addEventListener("click",function(){
+    var id = b.getAttribute("data-delagree"); if(!confirm("Delete this agreement?")) return;
+    state.agreements = state.agreements.filter(function(a){return a.id!==id;}); save(); render();
+  }); });
+  app.querySelectorAll("[data-usevisit]").forEach(function(b){ b.addEventListener("click",function(){
+    var a = state.agreements.filter(function(x){return x.id===b.getAttribute("data-usevisit");})[0]; if(!a) return;
+    if(visitsLeft(a) <= 0){ alert("No visits left on this agreement for the year."); return; }
+    a.visitsUsed = visitsUsed(a) + 1; save(); flash("Visit recorded — "+visitsLeft(a)+" left this year."); render();
+  }); });
+  app.querySelectorAll("[data-editcall]").forEach(function(b){ b.addEventListener("click",function(){ ui.editCall=b.getAttribute("data-editcall"); render(); }); });
+  app.querySelectorAll("[data-delcall]").forEach(function(b){ b.addEventListener("click",function(){
+    var id = b.getAttribute("data-delcall"); if(!confirm("Delete this service call?")) return;
+    state.calls = state.calls.filter(function(c){return c.id!==id;}); save(); render();
+  }); });
+  app.querySelectorAll("[data-edittune]").forEach(function(b){ b.addEventListener("click",function(){ ui.editTune=b.getAttribute("data-edittune"); render(); }); });
+  app.querySelectorAll("[data-deltune]").forEach(function(b){ b.addEventListener("click",function(){
+    var id = b.getAttribute("data-deltune"); if(!confirm("Delete this tune-up?")) return;
+    state.tuneups = state.tuneups.filter(function(t){return t.id!==id;}); save(); render();
+  }); });
+  app.querySelectorAll("[data-printtune]").forEach(function(b){ b.addEventListener("click",function(){ printTuneup(b.getAttribute("data-printtune")); }); });
+}
+function setTabKeep(t){ render(); }
+
+/* ---------- export for QA harness / reuse ---------- */
+var HA = { FALL_ITEMS:FALL_ITEMS, SPRING_ITEMS:SPRING_ITEMS, esc:esc, num:num, money:money, validISODate:validISODate, addDays:addDays,
+  daysBetween:daysBetween, callBilled:callBilled, callBalance:callBalance, visitsLeft:visitsLeft, renewalState:renewalState,
+  moneySummary:moneySummary, seedData:seedData, sanitizeState:sanitizeState };
+if(typeof window!=="undefined") window.HA = HA;
+if(typeof module!=="undefined" && module.exports) module.exports = HA;
+
+/* ---------- boot ---------- */
+load();
+render();
+
+/* ================= Legal — Terms of Use acceptance (catalog pattern v1.0) ================= */
+var TERMS_VERSION = "1.0";
+var LEGAL_APP_NAME = "HeatAir Book";
+var LEGAL_HAS_DISCLAIMER = true;
+var LEGAL_TERMS_HTML = "<h3>Terms of Use \u2014 White Wolf Digital Apps</h3><p><b>Version 1.0 (DRAFT \u2014 pending attorney review)</b></p><p><b>Seller: White Wolf Tree Service LLC, selling digital products under the name \"White Wolf Digital\"</b></p><p><b>Contact: whitewolfoklahoma@gmail.com</b></p><h4>1. What you're buying</h4><p>Our apps (including ForgeFit AI, ForgeKitchen, TreeBid Pro, SnowBid,</p><p>WashPrice Pro, RoofSquares, JobProfit Tracker, PastureLedger, and the other</p><p>titles sold under White Wolf Digital) are single-file software tools. When</p><p>you buy one, you are buying a <b>license to use the file</b>, not ownership of</p><p>the software itself.</p><h4>2. Your license</h4><ul><li>You may use the app for your own personal or business work.</li><li>You may open it on your own devices (phone, tablet, computer) and move your</li></ul><p>  own data between them using the app's built-in backup/export tools.</p><ul><li>You may <b>not</b> resell, redistribute, give away, upload, or share the app</li></ul><p>  file (or a copy of it) with anyone else \u2014 including posting it online,</p><p>  bundling it with other products, or selling access to it.</p><ul><li>You may <b>not</b> claim the app as your own work, remove its branding or</li></ul><p>  notices, or use it to build a competing product for resale.</p><ul><li>One purchase = one buyer. A business purchase covers the buyer and their</li></ul><p>  own employees using it for that business's work; it does not cover other</p><p>  businesses.</p><h4>3. Your data stays yours \u2014 and stays on your device</h4><ul><li>The current versions of our apps run <b>entirely on your device</b>. They have</li></ul><p>  no accounts, no sign-in, no analytics, and they collect, transmit, and store</p><p>  <b>none</b> of your information on any server. We never see your data.</p><ul><li>Your records are stored in your browser/app storage on your device. **You</li></ul><p>  are responsible for backing them up** using the app's export tools. If you</p><p>  clear your browser data, lose your device, or uninstall the app, your</p><p>  records may be permanently lost, and we cannot recover them \u2014 we never had</p><p>  a copy.</p><ul><li>Files you export (backups, quotes, PDFs) are under your control. Where you</li></ul><p>  store or send them is up to you.</p><h4>4. Estimates are tools, not guarantees</h4><p>Every number our apps produce \u2014 bids, prices, costs, calorie targets,</p><p>projections, schedules, totals \u2014 is an **estimate generated from the</p><p>information you enter and the settings you choose**. Outputs are aids for</p><p>your own judgment, not guarantees of price, profit, outcome, or result. You</p><p>are responsible for checking any output before relying on it (see also the</p><p>disclaimer that applies to your app: Health Disclaimer for fitness/nutrition</p><p>apps, Estimator Disclaimer for contractor tools). If an input is wrong, the</p><p>output will be wrong.</p><h4>5. Acceptable use</h4><p>Don't use the apps to break the law, infringe anyone's rights, or</p><p>misrepresent quotes, invoices, or records to your own customers. For the</p><p>fitness apps, the guardrails in the app (healthy-rate limits, calorie floor)</p><p>are part of the product \u2014 don't treat the app as a way around them.</p><h4>6. Provided \"as is\"</h4><p>The apps are provided **\"as is\" and \"as available,\" without warranties of</p><p>any kind**, express or implied \u2014 including merchantability, fitness for a</p><p>particular purpose, accuracy of calculations, and uninterrupted or</p><p>error-free operation \u2014 to the maximum extent allowed by law. Software has</p><p>bugs; browsers change; we work to fix problems but do not promise any app is</p><p>error-free or will work on every device or browser forever.</p><h4>7. Limitation of liability</h4><p>To the maximum extent allowed by law:</p><ul><li>We are **not liable for indirect, incidental, special, or consequential</li></ul><p>  damages** \u2014 including lost profits, lost or mispriced jobs, lost data, or</p><p>  business interruption \u2014 arising from use of the apps.</p><ul><li>Our total liability for any claim connected to an app is limited to the</li></ul><p>  <b>amount you paid for that app</b>.</p><ul><li>Nothing in these terms limits liability that cannot legally be limited.</li></ul><h4>8. Refunds</h4><p>Refunds are handled **by the storefront you bought from, under that</p><p>storefront's policy** \u2014 Gumroad's refund policy for Gumroad purchases, and</p><p>Google Play's refund policy for Play purchases. These terms do not add to,</p><p>replace, or override the storefront's refund rules. If a file is defective</p><p>and won't open, contact us at whitewolfoklahoma@gmail.com and we'll fix or</p><p>replace the file.</p><h4>9. Updates and changes to these terms</h4><ul><li>We may release updated versions of an app. Updates may add, change, or</li></ul><p>  remove features.</p><ul><li>We may update these terms. The version you agreed to is recorded in the</li></ul><p>  app (version number and date) at first-run acceptance. If terms change,</p><p>  the app may ask you to accept the new version once on next open. Updated</p><p>  terms apply going forward, not retroactively.</p><ul><li>If you don't agree to an updated version of the terms, stop using the app.</li></ul><h4>10. Governing law</h4><p>These terms are governed by the laws of the <b>State of Oklahoma</b>, USA.</p><p>(Attorney to confirm governing law and venue before publication.)</p><h4>11. Contact</h4><p>White Wolf Tree Service LLC (White Wolf Digital) \u2014</p><p>whitewolfoklahoma@gmail.com.</p><h4>CONNECTED FEATURES \u2014 takes effect only when these features ship</h4><p>*The sections below apply only to future connected features (device sync via</p><p>Health Connect, AI voice logging, and the AI Goal Preview in ForgeFit). They</p><p>do not apply to the current offline versions, which never transmit data.*</p><ul><li><b>Opt-in only.</b> Connected features are off by default. Each one asks for</li></ul><p>  your separate, explicit consent \u2014 on its own consent screen, in plain</p><p>  language \u2014 before anything leaves your device. Declining never disables</p><p>  the app's offline features.</p><ul><li><b>What gets sent.</b> Only what the consent screen names, only when you use</li></ul><p>  the feature: for example, a meal description (text, or audio only if cloud</p><p>  transcription is on) for AI voice logging, or the single photo you choose</p><p>  for an AI Goal Preview.</p><ul><li><b>No retention by us.</b> Our relay service passes your request to the named</li></ul><p>  AI provider and keeps nothing \u2014 no copies of your photos, audio,</p><p>  transcripts, or entries are stored on our servers. Provider handling is</p><p>  described on the consent screen and in the Privacy Policy.</p><ul><li><b>Health data stays on the device.</b> Device sync (Health Connect) reads</li></ul><p>  your health data on your phone and stores it in the app on your phone. It</p><p>  is not uploaded to us.</p><ul><li><b>Allowances.</b> Some connected features run on third-party AI services we</li></ul><p>  pay for per use, so they may include a monthly allowance described in the</p><p>  app (for example, a set number of AI previews or voice entries per month),</p><p>  with optional additional credits. Allowances and pricing will be shown in</p><p>  the app before you use the feature; they are not a subscription unless the</p><p>  app says so in plain words.</p><ul><li><b>Permissions.</b> Connected features may request device permissions (such</li></ul><p>  as Health Connect access or the microphone) at the moment you first use</p><p>  them. You can revoke permissions any time in your device settings; the</p><p>  related feature will simply stop working.</p>";
+var LEGAL_DISCLAIMER_HTML = "<h3>Estimator Disclaimer \u2014 Contractor &amp; Trade Tools</h3><p>**Applies to: TreeBid Pro, SnowBid, WashPrice Pro, RoofSquares, JobProfit</p><p>Tracker, FieldForms Toolkit, PaintPro, FenceDeck, MarketMaker, and the other</p><p>estimating/pricing tools sold under White Wolf Digital \u2014 including bundles</p><p>that contain them.**</p><h4>Estimating aids, not finished quotes</h4><ul><li>These apps are <b>estimating and record-keeping aids</b>. Every bid, price,</li></ul><p>  cost, measurement, and total they produce is an **estimate based on the</p><p>  information and rates you enter**.</p><ul><li>**You \u2014 the business owner \u2014 are responsible for verifying everything</li></ul><p>  before you quote a customer:** measurements and quantities, site</p><p>  conditions, your current material and labor costs, your rates and margins,</p><p>  taxes, permit and license requirements, disposal rules, and any contract</p><p>  terms.</p><ul><li>Default rates, presets, and sample data included in the apps are starting</li></ul><p>  points only. They are not market prices, not industry standards, and not</p><p>  a recommendation of what you should charge.</p><ul><li>A saved quote keeps the prices in effect when you created it (price</li></ul><p>  snapshot). Changing your presets later does not change saved quotes \u2014</p><p>  and a saved quote is still your responsibility to review before sending.</p><h4>Specific tools</h4><ul><li><b>TreeBid Pro:</b> tree work is dangerous and site-specific. Difficulty</li></ul><p>  factors and presets cannot see the actual tree, lean, rot, targets, or</p><p>  access. Inspect every job in person before final pricing. The \"Invoice</p><p>  with Wave\" feature is an open-and-paste handoff \u2014 TreeBid does not</p><p>  connect to Wave, and the invoice you send from Wave is yours.</p><ul><li><b>RoofSquares / measurement tools:</b> confirm roof measurements and pitch</li></ul><p>  in person or by your usual method before ordering materials.</p><ul><li><b>SnowBid / seasonal tools:</b> route times, snowfall amounts, and service</li></ul><p>  pricing vary by storm and site; seasonal contracts are your agreement</p><p>  with your customer, on your terms.</p><ul><li><b>JobProfit Tracker:</b> profit figures depend on the costs you enter.</li></ul><p>  The app is not accounting or tax software and does not replace your</p><p>  bookkeeper or accountant.</p><h4>Bottom line</h4><p>If an output and your judgment disagree, trust your judgment \u2014 then fix the</p><p>input. We are not responsible for jobs won, lost, or mispriced based on app</p><p>outputs, within the limits of the Terms of Use.</p>";
+(function(){
+  var lst = document.createElement("style");
+  lst.textContent = "@media print{ #legalOverlay{ display:none !important; } }";
+  document.head.appendChild(lst);
+})();
+function sanitizeLegal(v){
+  if(!v || typeof v !== "object") return null;
+  if(typeof v.termsVersion !== "string" || typeof v.acceptedDate !== "string") return null;
+  return { termsVersion: v.termsVersion.slice(0, 10), acceptedDate: v.acceptedDate.slice(0, 40), disclaimerShown: !!v.disclaimerShown };
+}
+function legalRecord(){
+  try{ var s = state; return (s && s.legal) ? sanitizeLegal(s.legal) : null; }catch(e){ return null; }
+}
+function legalVersionCmp(a, b){
+  var pa = String(a).split("."), pb = String(b).split(".");
+  for(var i = 0; i < 3; i++){ var d = (parseInt(pa[i], 10) || 0) - (parseInt(pb[i], 10) || 0); if(d) return d; }
+  return 0;
+}
+function legalAcceptLine(){
+  var rec = legalRecord();
+  if(rec && rec.acceptedDate) return "You agreed to Terms v" + rec.termsVersion + " on " + rec.acceptedDate.slice(0, 10) + ".";
+  return "No Terms acceptance is recorded on this device yet \u2014 the current Terms will be shown for your agreement.";
+}
+function legalSectionHTML(){
+  var h = '<div style="border-top:2px solid rgba(127,127,127,.35);margin-top:20px;padding-top:14px;">'
+    + '<h2>Legal</h2>'
+    + '<p>' + legalAcceptLine() + '</p>'
+    + '<h3>Terms of Use (v' + TERMS_VERSION + ')</h3>'
+    + '<div style="max-height:340px;overflow-y:auto;border:1px solid rgba(127,127,127,.4);border-radius:8px;padding:10px 14px;font-size:14px;line-height:1.55;">' + LEGAL_TERMS_HTML + '</div>';
+  if(LEGAL_HAS_DISCLAIMER){
+    h += '<h3>Estimator Disclaimer</h3>'
+      + '<div style="max-height:260px;overflow-y:auto;border:1px solid rgba(127,127,127,.4);border-radius:8px;padding:10px 14px;font-size:14px;line-height:1.55;">' + LEGAL_DISCLAIMER_HTML + '</div>';
+  }
+  h += '<h3>Privacy</h3>'
+    + '<p>This app collects no data. It has no accounts, no sign-in, no analytics, and no server \u2014 everything you enter is stored only on this device, in this browser\u2019s storage, and nothing is transmitted anywhere. Files you export (backups, quotes, prints) are under your control. You are responsible for backing up your records with the app\u2019s export tools.</p>'
+    + '<p>Sold by White Wolf Tree Service LLC (White Wolf Digital) \u2014 whitewolfoklahoma@gmail.com</p>'
+    + '</div>';
+  return h;
+}
+function legalFillSection(){
+  var el = document.getElementById("legalSection");
+  if(!el) return;
+  var sig = legalAcceptLine();
+  if(el.getAttribute("data-legal-filled") === sig) return;
+  el.innerHTML = legalSectionHTML(); el.setAttribute("data-legal-filled", sig);
+}
+function legalRefreshSection(){
+  var el = document.getElementById("legalSection");
+  if(el){ el.innerHTML = legalSectionHTML(); el.setAttribute("data-legal-filled", legalAcceptLine()); }
+}
+function legalShowOverlay(isUpdate){
+  if(document.getElementById("legalOverlay")) return;
+  var ov = document.createElement("div");
+  ov.id = "legalOverlay";
+  ov.setAttribute("style", "position:fixed;inset:0;z-index:99999;background:rgba(8,10,14,.74);overflow-y:auto;padding:20px 12px;display:flex;align-items:flex-start;justify-content:center;");
+  var discBtn = LEGAL_HAS_DISCLAIMER ? '<button type="button" id="legalReadDisc" style="min-height:44px;padding:10px 14px;border-radius:10px;border:1px solid #9aa4b2;background:#ffffff;color:#1c2733;font-size:15px;cursor:pointer;">Read the Estimator Disclaimer</button>' : '';
+  var checkLabel = LEGAL_HAS_DISCLAIMER ? "I have read the disclaimer and I agree to the Terms of Use" : "I have read and I agree to the Terms of Use";
+  ov.innerHTML = '<div style="background:#ffffff;color:#1c2733;max-width:560px;width:100%;border-radius:14px;padding:22px 20px;box-shadow:0 18px 50px rgba(0,0,0,.45);font-size:15px;line-height:1.55;">'
+    + '<h2 style="margin:0 0 6px;font-size:21px;">' + LEGAL_APP_NAME + ' \u2014 Terms of Use</h2>'
+    + (isUpdate ? '<p style="background:#fdf3d7;border:1px solid #e4cf8a;border-radius:8px;padding:8px 10px;"><b>Our terms were updated (v' + TERMS_VERSION + ').</b></p>' : '')
+    + '<p style="font-size:16px;"><b>Your data stays on your device.</b><br><b>Estimates are aids, not guarantees.</b><br><b>You\'re responsible for checking outputs before you rely on them.</b></p>'
+    + '<p>The full Terms' + (LEGAL_HAS_DISCLAIMER ? ' and Disclaimer are' : ' are') + ' one tap away, now and any time in Settings \u2192 Legal.</p>'
+    + '<div id="legalReader" style="display:none;max-height:44vh;overflow-y:auto;border:1px solid #d5dbe3;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:14px;"></div>'
+    + '<p style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" id="legalReadTerms" style="min-height:44px;padding:10px 14px;border-radius:10px;border:1px solid #9aa4b2;background:#ffffff;color:#1c2733;font-size:15px;cursor:pointer;">Read the full Terms</button>' + discBtn + '</p>'
+    + '<label style="display:flex;gap:10px;align-items:flex-start;margin:12px 0;cursor:pointer;"><input type="checkbox" id="legalCheck" style="width:22px;height:22px;min-width:22px;margin-top:1px;cursor:pointer;"><span>' + checkLabel + '</span></label>'
+    + '<button type="button" id="legalAgree" disabled style="min-height:52px;width:100%;border:0;border-radius:10px;background:#1f5fa8;color:#ffffff;font-size:17px;font-weight:700;cursor:pointer;opacity:.55;">I Agree</button>'
+    + '<p style="font-size:13px;color:#5a6675;margin-bottom:0;">Your records stay loaded behind this screen and are never deleted or locked, whether or not you agree now.</p>'
+    + '</div>';
+  document.body.appendChild(ov);
+  var reader = ov.querySelector("#legalReader");
+  var showing = "";
+  function toggleReader(kind){
+    if(showing === kind){ reader.style.display = "none"; showing = ""; return; }
+    reader.innerHTML = kind === "terms" ? LEGAL_TERMS_HTML : LEGAL_DISCLAIMER_HTML;
+    reader.style.display = "block"; showing = kind;
+    reader.scrollTop = 0;
+  }
+  ov.querySelector("#legalReadTerms").addEventListener("click", function(){ toggleReader("terms"); });
+  var db = ov.querySelector("#legalReadDisc");
+  if(db) db.addEventListener("click", function(){ toggleReader("disc"); });
+  var legalChk = ov.querySelector("#legalCheck");
+  var legalAgreeBtn = ov.querySelector("#legalAgree");
+  legalChk.addEventListener("change", function(){ legalAgreeBtn.disabled = !legalChk.checked; legalAgreeBtn.style.opacity = legalChk.checked ? "1" : ".55"; });
+  legalAgreeBtn.addEventListener("click", function(){
+    if(!legalChk.checked) return;
+    try{ state.legal = { termsVersion: TERMS_VERSION, acceptedDate: new Date().toISOString(), disclaimerShown: LEGAL_HAS_DISCLAIMER }; save(); }catch(e){}
+    if(ov.parentNode) ov.parentNode.removeChild(ov);
+    legalRefreshSection();
+  });
+}
+function legalInit(){
+  legalFillSection();
+  var rec = legalRecord();
+  if(rec && legalVersionCmp(rec.termsVersion, TERMS_VERSION) >= 0) return;
+  legalShowOverlay(!!rec);
+}
+if(typeof MutationObserver !== "undefined"){
+  var legalObs = new MutationObserver(function(){ legalFillSection(); });
+  legalObs.observe(document.documentElement, { childList: true, subtree: true });
+}
+if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", function(){ setTimeout(legalInit, 30); });
+else setTimeout(legalInit, 30);
+
+</script>
+</body>
+</html>
